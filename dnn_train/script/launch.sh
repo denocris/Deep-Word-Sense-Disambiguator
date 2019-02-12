@@ -35,10 +35,10 @@ echo 'Taraining size: ' $TRAINING_SIZE
 # do
 # for num in 1 2 4 8 16 32;
 # do
-# for lrate in 0.000001 0.0000001;
-# do           #0.000005
+# for lrate in 0.05;# 0.005 0.001 0.0005 0.0001;
+# do
 #LRATE=$(($num * 8))
-python3 main.py ${MODEL_NAME}_$lrate ${CHECKPOINTS_PATH} ${TRAIN_DATA_PATH} ${VALID_DATA_PATH} ${VOCAB_PATH} ${NUM_WORDS_PATH} $TRAINING_SIZE #$lrate
+python3 main.py ${MODEL_NAME} ${CHECKPOINTS_PATH} ${TRAIN_DATA_PATH} ${VALID_DATA_PATH} ${VOCAB_PATH} ${NUM_WORDS_PATH} $TRAINING_SIZE
 #done
 
 echo $'\n-----------------------------------------------------\n'

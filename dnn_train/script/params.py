@@ -20,7 +20,7 @@ PRINT_SHAPE = False
 RESUME_TRAINING = False
 MULTI_THREADING = True
 TRAIN_SIZE = int(str(sys.argv[7]))
-NUM_EPOCHS = 50
+NUM_EPOCHS = 70
 BATCH_SIZE = 256
 EVAL_AFTER_SEC = 60
 TOTAL_STEPS = int((TRAIN_SIZE/BATCH_SIZE)*NUM_EPOCHS)
@@ -39,26 +39,26 @@ TARGET_LABELS = ['0', '1']
 # ------------------------------------
 # ----------- GLOVE EMBEDDING --------
 # ------------------------------------
-GLOVE_ACTIVE=False
+GLOVE_ACTIVE=True
 TRAINABLE_EMB=True
 MAX_DOCUMENT_LENGTH = 20
-EMBEDDING_SIZE = 300 if GLOVE_ACTIVE else 16
+EMBEDDING_SIZE = 300 if GLOVE_ACTIVE else 8
 
 # ------------------------------------
 # ------------- TRAINING PARAMS ------------
 # ------------------------------------
-LEARNING_RATE = 0.01 #float(str(sys.argv[8])) #0.0005 #0.0001
-DECAY_LEARNING_RATE_ACTIVE = False
+LEARNING_RATE = 0.00005 #float(str(sys.argv[8])) #0.0005 #0.0001
+DECAY_LEARNING_RATE_ACTIVE = True
 # For LSTM0
 FORGET_BIAS = 1.0
 # For LSTM0
 DROPOUT_RATE = 0.5 #0.5
 # For LSTM it refers to the size of the Cell, for CNN model instead are the FC layers
-HIDDEN_UNITS = [64] #[96, 64, 16], None
+HIDDEN_UNITS = [32] #[96, 64, 16], None
 # For CNN, kernel size
 WINDOW_SIZE = 3
 # For CNN, number of filters (i.e. feature maps)
-FILTERS = 32
+FILTERS = 64
 
 # ------------------------------------
 # ------------- MODEL DIR ------------

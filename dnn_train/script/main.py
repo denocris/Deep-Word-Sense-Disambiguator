@@ -99,12 +99,12 @@ if __name__ == "__main__":
         input_fn = lambda: preprocessing.input_fn(
             pm.VALID_DATA_FILES_PATTERN,
             mode=tf.estimator.ModeKeys.EVAL,
-            batch_size=512),
+            batch_size=pm.BATCH_SIZE),
         exporters=[tf.estimator.LatestExporter(  # this class regularly exports the serving graph and checkpoints.
             name="predict", # the name of the folder in which the model will be exported to under export
             serving_input_receiver_fn=serving_input_fn,
             exports_to_keep=1,
-            as_text=True)],
+            as_text=False)],
         steps=None,
         throttle_secs = pm.EVAL_AFTER_SEC)
 

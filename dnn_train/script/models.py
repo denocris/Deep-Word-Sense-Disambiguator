@@ -49,7 +49,7 @@ def lstm_model_fn(features, labels, mode, params):
     rnn_layers = [tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.LSTMCell(
             num_units=size,
             forget_bias=forget_bias,
-            activation=tf.nn.tanh), output_keep_prob=1.0,state_keep_prob=1.0,
+            activation=tf.nn.tanh), output_keep_prob=dropout_rate,state_keep_prob=1.0,
                 ) for size in hidden_units]
 
         # create a RNN cell composed sequentially of a number of RNNCells
@@ -119,8 +119,8 @@ def lstm_model_fn(features, labels, mode, params):
         learning_func = learning_rate #tf.random_uniform([1],minval=learning_rate,maxval=0.0001)[0]
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(5*one_epoch_in_step, tf.int64)), lambda: 0.0008, lambda: learning_func)
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(10*one_epoch_in_step, tf.int64)), lambda: 50*learning_func, lambda: learning_func)
-        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(3*one_epoch_in_step, tf.int64)), lambda: 100*learning_rate, lambda: learning_func)
-        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(5*one_epoch_in_step, tf.int64)), lambda: 5*learning_func, lambda: 2*learning_func)
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(10*one_epoch_in_step, tf.int64)), lambda: 0.1*learning_rate, lambda: 0.01*learning_rate)
+        learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(2*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: 10*learning_func)
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(3*one_epoch_in_step, tf.int64)), lambda: 0.0005, lambda: learning_func)
         if pm.DECAY_LEARNING_RATE_ACTIVE:
             decayed_learning_rate = tf.train.exponential_decay(learning_func,
@@ -177,6 +177,9 @@ def bidir_lstm_model_fn(features, labels, mode, params):
     forget_bias = params.forget_bias
     learning_rate = params.learning_rate
     dropout_rate = params.dropout_rate
+    window_size = params.window_size
+    stride = int(window_size/2)
+    filters = params.filters
 
     # word_id_vector
     word_id_vector = preprocessing.process_text(features[pm.TEXT_FEATURE_NAME])
@@ -195,45 +198,27 @@ def bidir_lstm_model_fn(features, labels, mode, params):
     training = (mode == tf.estimator.ModeKeys.TRAIN)
     dropout_emb = tf.layers.dropout(inputs=word_embeddings, rate=0.2, training=training)
 
+    words_conv= tf.layers.conv1d(dropout_emb, filters=filters, kernel_size=window_size ,
+                                  strides=stride, padding='VALID', activation=tf.nn.relu)
+    words_conv = tf.layers.dropout(inputs=words_conv, rate=dropout_rate, training=training)
 
-    # configure the RNN
-    #lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(100)
 
-    # configure the RNN
-
-    # rnn_layers = [tf.contrib.rnn.LayerNormBasicLSTMCell(
-    #         num_units=size,
-    #         forget_bias=forget_bias,
-    #         activation=tf.nn.tanh,
-    #         layer_norm=True,
-    #         dropout_keep_prob=0.5) for size in hidden_units]
-
-    #print('------------- emb_output ---------------',dropout_emb.get_shape())
     rnn_layers_fw = [tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.LSTMCell(
             num_units=size,
             forget_bias=forget_bias,
-            activation=tf.nn.tanh), output_keep_prob=1.0,state_keep_prob=1.0,
+            activation=tf.nn.tanh), output_keep_prob=dropout_rate, state_keep_prob=1.0,
                 ) for size in hidden_units]
     rnn_layers_bw = [tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.LSTMCell(
             num_units=size,
             forget_bias=forget_bias,
-            activation=tf.nn.tanh), output_keep_prob=1.0,state_keep_prob=1.0,
+            activation=tf.nn.tanh), output_keep_prob=dropout_rate, state_keep_prob=1.0,
                 ) for size in hidden_units]
 
-        # create a RNN cell composed sequentially of a number of RNNCells
     multi_rnn_cell_fw = tf.nn.rnn_cell.MultiRNNCell(rnn_layers_fw)
     multi_rnn_cell_bw = tf.nn.rnn_cell.MultiRNNCell(rnn_layers_bw)
 
     input_layer = dropout_emb
-    #input_layer = tf.unstack(word_embeddings, axis=1)
-
-
-    # outputs, final_states = tf.nn.static_bidirectional_rnn(cell_fw=multi_rnn_cell_fw,
-    #                                                cell_bw=multi_rnn_cell_bw,
-    #                                                inputs=input_layer,
-    #                                                sequence_length=feature_length_array,
-    #                                                dtype=tf.float32)
-    # rnn_output = outputs[-1]
+    #input_layer = words_conv
 
     (output_fw, output_bw), (output_state_fw, output_state_bw) = tf.nn.bidirectional_dynamic_rnn(cell_fw=multi_rnn_cell_fw,
                                                    cell_bw=multi_rnn_cell_bw,
@@ -241,27 +226,8 @@ def bidir_lstm_model_fn(features, labels, mode, params):
                                                    sequence_length=feature_length_array,
                                                    dtype=tf.float32)
 
-    # out_fw, out_bw = outputs
-    # rnn_output = tf.concat([out_fw, out_bw ],axis=2)
-    # print(out_fw.get_shape())
-    # print(out_bw.get_shape())
-    # print(rnn_output.get_shape())
-    # rrr = tf.reshape(tf.concat(states,1),(Params.batch_size, shapes[1], 2*units))
-    #print(output_fw)
-    #print(output_bw)
-    #print(output_state_fw[0].h)
-    #print(output_state_bw[0].h)
     rnn_output = tf.concat([output_state_fw[0].h, output_state_bw[0].h], axis=1)
     print(rnn_output)
-    #exit()
-    #rnn_output = tf.concat(outputs,-1)
-    # rnn_output = tf.transpose(output, [1, 0 ,2])
-    #rnn_output=tf.concat([forward_output, backward_output],axis=2)
-
-    # slice to keep only the last cell of the RNN
-    #rnn_output = final_states[-1].h
-
-    #print('------------- rnn_output ---------------',rnn_output.get_shape())
 
     # Connect the output layer (logits) to the hidden layer (no activation fn)
     logits = tf.layers.dense(inputs=rnn_output,
@@ -310,13 +276,13 @@ def bidir_lstm_model_fn(features, labels, mode, params):
         one_epoch_in_step = pm.TRAIN_SIZE/pm.BATCH_SIZE
         learning_func = learning_rate #tf.random_uniform([1],minval=learning_rate,maxval=0.0001)[0]
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(5*one_epoch_in_step, tf.int64)), lambda: 0.0008, lambda: learning_func)
-        learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(12*one_epoch_in_step, tf.int64)), lambda: 0.01*learning_rate, lambda: 0.001*learning_rate)
-        learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(6*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_func)
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(2*one_epoch_in_step, tf.int64)), lambda: 10*learning_rate, lambda: learning_rate)
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(1*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_func)
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(3*one_epoch_in_step, tf.int64)), lambda: 0.0005, lambda: learning_func)
         if pm.DECAY_LEARNING_RATE_ACTIVE:
             decayed_learning_rate = tf.train.exponential_decay(learning_func,
                                             global_step=tf.train.get_global_step(),
-                                            decay_steps=one_epoch_in_step * 24,
+                                            decay_steps=one_epoch_in_step * 15,
                                             decay_rate=0.94,
                                             staircase=True)
             tf.summary.scalar('learning rate', decayed_learning_rate)
