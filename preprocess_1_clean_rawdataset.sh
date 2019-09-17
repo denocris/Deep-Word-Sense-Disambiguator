@@ -8,7 +8,7 @@ sed -e "s/[^a-zA-Z0-9àèéìòù@_\!'?\* ]//g" $1 > corpus_tmp_v0
 
 # Select only sentences with more than 2 words
 echo "Select only sentences with more than 2 words..."
-awk 'NF>=3' corpus_tmp_v0 > corpus_tmp_v1
+awk 'NF>=2' corpus_tmp_v0 > corpus_tmp_v1
 
 echo "Select only sentences with less than 2 words..."
 awk 'NF<=17' corpus_tmp_v1 > corpus_tmp_v2

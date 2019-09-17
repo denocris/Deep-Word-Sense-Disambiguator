@@ -30,3 +30,5 @@ sort -u e_cong_tmp1 | sort -R > e_cong
 
 rm -rf è_verb_tmp* e_cong_tmp*
 rm -rf è_verb_temp* e_cong_temp*
+
+
