@@ -3,11 +3,22 @@
 
 # Usage:
 # $: bash launch.sh <model-name> <checkpoints-path>
-# Ex: bash launch.sh test-sei /home/asr/prj_SlotTagger/dnn_train/checkpoints/
+# Ex: bash launch.sh test-model /home/asr/prj_SlotTagger/dnn_train/checkpoints/
 
 
 # The name of the ambiguity must be its folder name
 AMBIGUITY=è_e
+#AMBIGUITY=ha_a # v28
+#AMBIGUITY=e_i # v4
+#AMBIGUITY=hai_ai # v4
+
+#AMBIGUITY=ho_o #v26
+#AMBIGUITY=sei_6
+#AMBIGUITY=sara_sarà #v7
+#AMBIGUITY=hanno_anno
+#AMBIGUITY=ho_o #v26
+#AMBIGUITY=dove_dovè  #v1
+
 
 mkdir -p ../checkpoints
 
@@ -19,10 +30,21 @@ MODEL_NAME=$1
 CHECKPOINTS_PATH=$2
 
 ROOT='/home/asr/prj_SlotTagger/dnn_train/'
-TRAIN_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/train_data_v5.tsv'
-VALID_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/valid_data_v5.tsv'
-VOCAB_PATH=$ROOT'datasets/'$AMBIGUITY'/vocab_10k_swin_v4.tsv'
-NUM_WORDS_PATH=$ROOT'datasets/'$AMBIGUITY'/n_words_10k_swin_v4.tsv'
+TRAIN_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/train_data_v30.tsv'
+VALID_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/valid_data_v30.tsv'
+VOCAB_PATH=$ROOT'datasets/'$AMBIGUITY'/vocab_15k_swin_v30.tsv'
+NUM_WORDS_PATH=$ROOT'datasets/'$AMBIGUITY'/n_words_15k_swin_v30.tsv'
+
+# TRAIN_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/train_data_v24.tsv'
+# VALID_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/valid_data_v24.tsv'
+# VOCAB_PATH=$ROOT'datasets/'$AMBIGUITY'/vocab_15k_swin_v24.tsv'
+# NUM_WORDS_PATH=$ROOT'datasets/'$AMBIGUITY'/n_words_15k_swin_v24.tsv'
+
+# TRAIN_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/train_data_v2.tsv'
+# VALID_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/valid_data_v2.tsv'
+# VOCAB_PATH=$ROOT'datasets/'$AMBIGUITY'/vocab_15k_swin_v2.tsv'
+# NUM_WORDS_PATH=$ROOT'datasets/'$AMBIGUITY'/n_words_15k_swin_v2.tsv'
+
 TRAINING_SIZE=$(cat $TRAIN_DATA_PATH | wc -l )
 
 echo $'\n-----------------------------------------------------\n'

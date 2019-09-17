@@ -9,7 +9,7 @@ import tensorflow as tf
 ##
 #MODEL_FN = models.lstm_model_fn
 MODEL_FN = models.bidir_lstm_model_fn
-#MODEL_FN = models.cnn_model_fn
+##MODEL_FN = models.cnn_model_fn
 #MODEL_FN = models.cnn_lstm_model_fn
 
 
@@ -20,7 +20,7 @@ PRINT_SHAPE = False
 RESUME_TRAINING = False
 MULTI_THREADING = True
 TRAIN_SIZE = int(str(sys.argv[7]))
-NUM_EPOCHS = 70
+NUM_EPOCHS = 110
 BATCH_SIZE = 256
 EVAL_AFTER_SEC = 60
 TOTAL_STEPS = int((TRAIN_SIZE/BATCH_SIZE)*NUM_EPOCHS)
@@ -39,22 +39,22 @@ TARGET_LABELS = ['0', '1']
 # ------------------------------------
 # ----------- GLOVE EMBEDDING --------
 # ------------------------------------
-GLOVE_ACTIVE=True
+GLOVE_ACTIVE=False
 TRAINABLE_EMB=True
-MAX_DOCUMENT_LENGTH = 20
+MAX_DOCUMENT_LENGTH = 15
 EMBEDDING_SIZE = 300 if GLOVE_ACTIVE else 8
 
 # ------------------------------------
 # ------------- TRAINING PARAMS ------------
 # ------------------------------------
-LEARNING_RATE = 0.00005 #float(str(sys.argv[8])) #0.0005 #0.0001
+LEARNING_RATE = 0.005 #0.001 sarà #doveè 0.005 #è_e 0.005 #ho_o ha_a 0.001 #0.005
 DECAY_LEARNING_RATE_ACTIVE = True
 # For LSTM0
 FORGET_BIAS = 1.0
 # For LSTM0
-DROPOUT_RATE = 0.5 #0.5
+DROPOUT_RATE = 0.8 #0.5
 # For LSTM it refers to the size of the Cell, for CNN model instead are the FC layers
-HIDDEN_UNITS = [32] #[96, 64, 16], None
+HIDDEN_UNITS = [16] #[96, 64, 16], None
 # For CNN, kernel size
 WINDOW_SIZE = 3
 # For CNN, number of filters (i.e. feature maps)

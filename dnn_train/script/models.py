@@ -116,16 +116,15 @@ def lstm_model_fn(features, labels, mode, params):
     if mode == tf.estimator.ModeKeys.TRAIN:
         # Create Optimiser
         one_epoch_in_step = pm.TRAIN_SIZE/pm.BATCH_SIZE
-        learning_func = learning_rate #tf.random_uniform([1],minval=learning_rate,maxval=0.0001)[0]
-        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(5*one_epoch_in_step, tf.int64)), lambda: 0.0008, lambda: learning_func)
-        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(10*one_epoch_in_step, tf.int64)), lambda: 50*learning_func, lambda: learning_func)
+
+        # learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(10*one_epoch_in_step, tf.int64)), lambda: 0.1*learning_rate, lambda: 0.01*learning_rate)
+        # learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(5*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_func)
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(10*one_epoch_in_step, tf.int64)), lambda: 0.1*learning_rate, lambda: 0.01*learning_rate)
-        learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(2*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: 10*learning_func)
-        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(3*one_epoch_in_step, tf.int64)), lambda: 0.0005, lambda: learning_func)
+        learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(6*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: 0.02*learning_rate)
         if pm.DECAY_LEARNING_RATE_ACTIVE:
             decayed_learning_rate = tf.train.exponential_decay(learning_func,
                                             global_step=tf.train.get_global_step(),
-                                            decay_steps=one_epoch_in_step * 5,
+                                            decay_steps=one_epoch_in_step * 15,
                                             decay_rate=0.94,
                                             staircase=True)
             tf.summary.scalar('learning rate', decayed_learning_rate)
@@ -198,9 +197,9 @@ def bidir_lstm_model_fn(features, labels, mode, params):
     training = (mode == tf.estimator.ModeKeys.TRAIN)
     dropout_emb = tf.layers.dropout(inputs=word_embeddings, rate=0.2, training=training)
 
-    words_conv= tf.layers.conv1d(dropout_emb, filters=filters, kernel_size=window_size ,
-                                  strides=stride, padding='VALID', activation=tf.nn.relu)
-    words_conv = tf.layers.dropout(inputs=words_conv, rate=dropout_rate, training=training)
+    # words_conv= tf.layers.conv1d(dropout_emb, filters=filters, kernel_size=window_size,
+    #                                strides=stride, padding='SAME', activation=tf.nn.relu)
+    # words_conv = tf.layers.dropout(inputs=words_conv, rate=0.2, training=training)
 
 
     rnn_layers_fw = [tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.LSTMCell(
@@ -227,7 +226,7 @@ def bidir_lstm_model_fn(features, labels, mode, params):
                                                    dtype=tf.float32)
 
     rnn_output = tf.concat([output_state_fw[0].h, output_state_bw[0].h], axis=1)
-    print(rnn_output)
+    #print(rnn_output)
 
     # Connect the output layer (logits) to the hidden layer (no activation fn)
     logits = tf.layers.dense(inputs=rnn_output,
@@ -253,8 +252,6 @@ def bidir_lstm_model_fn(features, labels, mode, params):
                                           predictions=predictions,
                                           export_outputs=export_outputs)
 
-    # weights
-    #weights = features[WEIGHT_COLUNM_NAME]
 
     # Calculate loss using softmax cross entropy
     loss = tf.losses.sparse_softmax_cross_entropy(
@@ -274,11 +271,25 @@ def bidir_lstm_model_fn(features, labels, mode, params):
     if mode == tf.estimator.ModeKeys.TRAIN:
         # Create Optimiser
         one_epoch_in_step = pm.TRAIN_SIZE/pm.BATCH_SIZE
-        learning_func = learning_rate #tf.random_uniform([1],minval=learning_rate,maxval=0.0001)[0]
+        #learning_func = learning_rate #tf.random_uniform([1],minval=learning_rate,maxval=0.0001)[0]
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(5*one_epoch_in_step, tf.int64)), lambda: 0.0008, lambda: learning_func)
-        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(2*one_epoch_in_step, tf.int64)), lambda: 10*learning_rate, lambda: learning_rate)
-        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(1*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_func)
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(12*one_epoch_in_step, tf.int64)), lambda: 10*learning_rate, lambda: 20*learning_func)
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(2*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: 0.01*learning_rate)
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(3*one_epoch_in_step, tf.int64)), lambda: 0.0005, lambda: learning_func)
+
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(10*one_epoch_in_step, tf.int64)), lambda: 0.1*learning_rate, lambda: 0.01*learning_rate)
+        # For é_e
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(1.0*one_epoch_in_step, tf.int64)), lambda: learning_rate / 5.0, lambda: learning_rate / 10.0)
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(0.3*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_func)
+        # For ho_o, ha_a
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(5.0*one_epoch_in_step, tf.int64)), lambda: learning_rate / 5.0, lambda: learning_rate / 70.0)
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(0.3*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_func)
+        # For sara_sarà
+        #learning_func = learning_rate
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(3*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_rate/10.0)
+        # For dove_dovè
+        #learning_func = learning_rate
+        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(0.2*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_rate/150.0)
         if pm.DECAY_LEARNING_RATE_ACTIVE:
             decayed_learning_rate = tf.train.exponential_decay(learning_func,
                                             global_step=tf.train.get_global_step(),
@@ -408,7 +419,7 @@ def cnn_model_fn(features, labels, mode, params):
                                                 stack_args= hidden_units,
                                                 activation_fn=tf.nn.relu)
 
-        hidden_layers = tf.layers.dropout(inputs=hidden_layers, rate=dropout_rate, training=training)
+        hidden_layers = tf.layers.dropout(inputs=hidden_layers, rate=0.2, training=training)
         # print("hidden_layers: {}".format(hidden_layers)) # (?, last-hidden-layer-size)
 
     else:
@@ -534,7 +545,7 @@ def cnn_lstm_model_fn(features, labels, mode, params):
                                   strides=stride, padding='SAME', activation=tf.nn.relu)
     #words_conv= tf.layers.conv1d(words_conv, filters=filters/2, kernel_size=window_size ,
                                       #strides=stride, padding='SAME', activation=tf.nn.relu)
-    words_conv = tf.layers.dropout(inputs=words_conv, rate=dropout_rate, training=training)
+    words_conv = tf.layers.dropout(inputs=words_conv, rate=0.2, training=training)
     #print('----------------------------- 1', words_conv.get_shape())
     #words_conv= tf.layers.conv1d(words_conv, filters=filters/2, kernel_size=window_size ,
                                       #strides=stride, padding='SAME', activation=tf.nn.relu)
