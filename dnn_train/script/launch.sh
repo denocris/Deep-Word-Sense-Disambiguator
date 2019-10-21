@@ -7,8 +7,8 @@
 
 
 # The name of the ambiguity must be its folder name
-AMBIGUITY=è_e
-#AMBIGUITY=ha_a # v28
+AMBIGUITY=è_e #35
+#AMBIGUITY=ha_a # v30
 #AMBIGUITY=e_i # v4
 #AMBIGUITY=hai_ai # v4
 
@@ -16,7 +16,7 @@ AMBIGUITY=è_e
 #AMBIGUITY=sei_6
 #AMBIGUITY=sara_sarà #v7
 #AMBIGUITY=hanno_anno
-#AMBIGUITY=ho_o #v26
+#AMBIGUITY=ho_o #v27
 #AMBIGUITY=dove_dovè  #v1
 
 
@@ -30,10 +30,10 @@ MODEL_NAME=$1
 CHECKPOINTS_PATH=$2
 
 ROOT='/home/asr/prj_SlotTagger/dnn_train/'
-TRAIN_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/train_data_v30.tsv'
-VALID_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/valid_data_v30.tsv'
-VOCAB_PATH=$ROOT'datasets/'$AMBIGUITY'/vocab_15k_swin_v30.tsv'
-NUM_WORDS_PATH=$ROOT'datasets/'$AMBIGUITY'/n_words_15k_swin_v30.tsv'
+TRAIN_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/train_data_v35.tsv'
+VALID_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/valid_data_v35.tsv'
+VOCAB_PATH=$ROOT'datasets/'$AMBIGUITY'/vocab_15k_swin_v35.tsv'
+NUM_WORDS_PATH=$ROOT'datasets/'$AMBIGUITY'/n_words_15k_swin_v35.tsv'
 
 # TRAIN_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/train_data_v24.tsv'
 # VALID_DATA_PATH=$ROOT'datasets/'$AMBIGUITY'/valid_data_v24.tsv'

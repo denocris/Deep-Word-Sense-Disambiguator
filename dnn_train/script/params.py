@@ -9,7 +9,7 @@ import tensorflow as tf
 ##
 #MODEL_FN = models.lstm_model_fn
 MODEL_FN = models.bidir_lstm_model_fn
-##MODEL_FN = models.cnn_model_fn
+#MODEL_FN = models.cnn_model_fn
 #MODEL_FN = models.cnn_lstm_model_fn
 
 

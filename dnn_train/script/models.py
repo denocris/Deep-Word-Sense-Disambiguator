@@ -49,7 +49,7 @@ def lstm_model_fn(features, labels, mode, params):
     rnn_layers = [tf.nn.rnn_cell.DropoutWrapper(tf.nn.rnn_cell.LSTMCell(
             num_units=size,
             forget_bias=forget_bias,
-            activation=tf.nn.tanh), output_keep_prob=dropout_rate,state_keep_prob=1.0,
+            activation=tf.nn.tanh), output_keep_prob=dropout_rate, state_keep_prob=1.0,
                 ) for size in hidden_units]
 
         # create a RNN cell composed sequentially of a number of RNNCells
@@ -279,8 +279,8 @@ def bidir_lstm_model_fn(features, labels, mode, params):
 
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(10*one_epoch_in_step, tf.int64)), lambda: 0.1*learning_rate, lambda: 0.01*learning_rate)
         # For é_e
-        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(1.0*one_epoch_in_step, tf.int64)), lambda: learning_rate / 5.0, lambda: learning_rate / 10.0)
-        #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(0.3*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_func)
+        learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(1.0*one_epoch_in_step, tf.int64)), lambda: learning_rate / 5.0, lambda: learning_rate / 10.0)
+        learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(0.3*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_func)
         # For ho_o, ha_a
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(5.0*one_epoch_in_step, tf.int64)), lambda: learning_rate / 5.0, lambda: learning_rate / 70.0)
         #learning_func = tf.cond(tf.less(tf.train.get_global_step(), tf.cast(0.3*one_epoch_in_step, tf.int64)), lambda: learning_rate, lambda: learning_func)
