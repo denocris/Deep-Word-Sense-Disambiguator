@@ -1,1 +1,3 @@
-A deep learning tool for word disambiguation. 
+# NeuralTaggerTrain
+
+Training phase of NeuralTagger project. 
